@@ -11,45 +11,55 @@
     </div>
     <button class="btn btn-primary" :class="{ disabled: !prevId }" @click="switchBack">Back</button>
   </div>
-
 </template>
+
 
 <script>
 export default {
   props: ['id'],
+  
   data() {
     return {
       character: {},
       prevId: null,
-      currentId: this.id
+      currentId: null,
     }
-  }, 
+  },
+
   methods: {
     fetchCharacter(id) {
-      return fetch(`https://swapi.co/api/people/${id}`, {
-        method: 'GET'
-      })
-        .then(response => response.json())
-        .then(json => this.character = json)
+      return fetch(`https://swapi.co/api/people/${id}`)
+        .then(res => res.json())
+        .then(json => {
+          this.character = json
+          this.currentId = id
+        })
         .catch(reason => console.error(reason))
     },
+
     switchCharacter() {
-      this.prevId = this.currentId 
-      this.currentId = Math.floor(Math.random() * 83) + 1
-      this.fetchCharacter(this.currentId)
+      this.prevId = this.currentId
+      const charId = this.getRandomCharacterId()
+      this.fetchCharacter(charId)
     },
+
+    getRandomCharacterId() {
+      const id = Math.floor(Math.random() * 83) + 1
+      return id === 17 ? 16 : id
+    },
+
     switchBack() {
       if (!this.prevId) {
         return
       }
       this.fetchCharacter(this.prevId)
         .then(() => this.prevId = null)
-      
     }
   },
+
   created () {
-    this.fetchCharacter(this.id)
+    this.currentId = this.id
+    this.fetchCharacter(this.currentId)
   }
 }
 </script>
-
